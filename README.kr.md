@@ -12,10 +12,10 @@
 
 | Name | Role & Responsibilities | GitHub Profile |
 | --- | --- | --- |
-| **김건우** | Role 1 / ~ | [Github Profile](https://github.com/goukimesatz) |
-| **나르지기토브 예르도스** | Role 2 / ~ | [Github Profile](https://github.com/YerdosNar) |
-| **전상준** | Role 3 / ~ | [Github Profile](https://github.com/nclsang) |
-| **차경호** | Role 4 / ~ | [Github Profile](https://github.com/Homeria) |
+| **김건우** | Role 1 / ~ | [**goukimesatz**](https://github.com/goukimesatz) |
+| **나르지기토브 예르도스** | Role 2 / ~ | [**YerdosNar**](https://github.com/YerdosNar) |
+| **전상준** | Role 3 / ~ | [**nclsang**](https://github.com/nclsang) |
+| **차경호** | Role 4 / ~ | [**Homeria**](https://github.com/Homeria) |
 
 ---
 

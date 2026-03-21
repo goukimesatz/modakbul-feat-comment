@@ -14,10 +14,10 @@
 
 | Name | Role & Responsibilities | GitHub Profile |
 | --- | --- | --- |
-| **Gunwoo Kim** | Role 1 / ~ | [Github Profile](https://github.com/goukimesatz) |
-| **Yerdos Narzigitov** | Role 2 / ~ | [Github Profile](https://github.com/YerdosNar) |
-| **Sangjun Jeon** | Role 3 / ~ | [Github Profile](https://github.com/nclsang) |
-| **Kyungho Cha** | Role 4 / ~ | [Github Profile](https://github.com/Homeria) |
+| **Gunwoo Kim** | Role 1 / ~ | [**goukimesatz**](https://github.com/goukimesatz) |
+| **Yerdos Narzigitov** | Role 2 / ~ | [**YerdosNar**](https://github.com/YerdosNar) |
+| **Sangjun Jeon** | Role 3 / ~ | [**nclsang**](https://github.com/nclsang) |
+| **Kyungho Cha** | Role 4 / ~ | [**Homeria**](https://github.com/Homeria) |
 
 ---
 
