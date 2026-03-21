@@ -6,7 +6,7 @@
 
 ---
 
-[**English**](./README.md) | [한국어]
+[**English**](/README.md) | [한국어]
 
 ## 👨‍💻 Team Members & Roles
 
