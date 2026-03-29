@@ -63,11 +63,17 @@
 *Criteria: Build community system first, then apply Modakbul logic.*
 
 1. **Community System Construction**
-    - **Features:** GET (List posts), POST (Create category/post), PUT (Update post), DELETE (Manual deletion).
+    - **Features:**
+        - GET (List posts),
+        - POST (Create category/post),
+        - PUT (Update post),
+        - DELETE (Manual deletion).
     - **Tech:** DB, Reverse Proxy, API Endpoints.
 
 2. **Applying Modakbul Logic**
-    - **Features:** GET (Check HP), POST (Register HP parameters during creation).
+    - **Features:**
+        - GET (Check HP),
+        - POST (Register HP parameters during creation).
     - **Tech:** Multi-threading (Background logic processing).
 
 3. **Optimization**
