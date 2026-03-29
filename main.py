@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 import bcrypt
 from starlette.status import HTTP_201_CREATED
 
-# my created
+# my created py
 import schemas
 from store import get_db
 
@@ -13,10 +13,50 @@ from store import get_db
 from datetime import datetime, timedelta, timezone
 import hashlib
 
+# background
+import asyncio
+from contextlib import asynccontextmanager
+from store import users_db, topics_db, comments_db
+
+async def sweep_expired_topics():
+    while True:
+        now = datetime.now(timezone.utc)
+        expired_topic_ids = []
+
+        # identify expired topics
+        for topic_id, topic_data in topics_db.items():
+            if now > topic_data["ttl"]:
+                expired_topic_ids.append(topic_id)
+
+        # delete the topics and their comments
+        for t_id in expired_topic_ids:
+            # remove
+            del topics_db[t_id]
+
+            # find and remove orphaned comments
+            comments_to_delete = [
+                c_id for c_id, c_data in comments_db.items()
+                if c_data["topic_id"] == t_id
+            ]
+
+            for c_id in comments_to_delete:
+                del comments_db[c_id]
+
+            print(f"*icon* Campfire {t_id} has burned out and was removed.")
+
+        await asyncio.sleep(60)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(sweep_expired_topics())
+    yield
+    task.cancel()
+
 app = FastAPI(
     title="Campfire API",
     description="Ephemeral discussion API",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 @app.get("/")
