@@ -1,89 +1,47 @@
-# Modakbul (모닥불)
+# Campfire API 🔥
 
-**2026-Spring Software Engineering Team Project**
+A RESTful API built with FastAPI that simulates an ephemeral discussion board.
 
-**Instructor:** Jaekwon Lee
+In this system, topics act as "campfires." They have a limited Time-To-Live (TTL). Users can keep the campfire burning by adding comments (fuel). If a topic goes cold and the TTL expires, a background process permanently sweeps away the topic and all associated comments.
 
----
+## Tech Stack
+* **Framework:** FastAPI (Python)
+* **Server:** Uvicorn
+* **Data Store:** In-memory Python dictionaries (simulated database)
+* **Security:** bcrypt (Password hashing)
 
-[English] | [**한국어**](/README.kr.md)
+## Core Mechanics
+1. **Creation:** When a new Topic is created, it is given a TTL of exactly 1 hour.
+2. **Fueling the Fire:** Every new Comment added to a Topic extends its TTL by 1 minute.
+3. **Sweeping the Ashes:** A background task runs every 60 seconds to check for expired Topics. If `Current Time > TTL`, the Topic and its Comments are permanently deleted.
 
----
+## How to Run Locally
 
-## 👨‍💻 Team Members & Roles
+1. Create and activate a virtual environment:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+2. Install dependencies:
+   ```bash
+   pip install fastapi uvicorn bcrypt
+   ```
+3. Start the development server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+4. Access the interactive API documentation at: `http://127.0.0.1:8000/docs`
 
-| Name | Role & Responsibilities | GitHub Profile |
-| --- | --- | --- |
-| **Gunwoo Kim** | Role 1 / ~ | [**goukimesatz**](https://github.com/goukimesatz) |
-| **Yerdos Narzigitov** | Role 2 / ~ | [**YerdosNar**](https://github.com/YerdosNar) |
-| **Sangjun Jeon** | Role 3 / ~ | [**nclsang**](https://github.com/nclsang) |
-| **Kyungho Cha** | Role 4 / ~ | [**Homeria**](https://github.com/Homeria) |
+## API Endpoints
 
----
+### Users
+* `POST /users/register`: Create a new account (hashes password).
+* `POST /users/login`: Authenticate and retrieve User ID.
 
-## 📖 Project Overview
+### Topics
+* `POST /topics`: Start a new campfire (requires `owner_id` query param).
+* `GET /topics`: List all active, unexpired campfires.
 
-**Modakbul** is an anonymous community backend API where users can communicate intensely about trending issues in real-time. If users stop adding "Firewood" (comments), the post's "Firepower" (HP) decreases until it is eventually "Extinguished" (deleted). This system ensures that only the freshest and most active topics remain visible.
-
----
-
-## 🎯 Project Vision Statement
-
-- **Target Users:** Anonymous users who want to discuss real-time issues without the burden of a permanent digital footprint.
-- **Problem or Need:** Existing communities archive posts permanently, leading to information fatigue and unnecessary digital traces.
-- **Product Category:** Real-time volatile anonymous community API server.
-- **Key Benefit & Differentiation:** By assigning a lifespan (HP) to posts, content that lacks user engagement (firewood) is automatically and permanently removed from the database.
-
----
-
-## 📌 Project Goals & Scope
-
-- **Business Goals:** Build a system to handle real-time HP reduction and post-deletion logic.
-- **In-Scope (Major Features):**
-    - Implement RESTful APIs for creating "Bonfires" (posts) and adding "Firewood" (comments).
-    - Use WebSockets for real-time broadcasting of Firepower (HP) status and client synchronization.
-    - Background Scheduler to decrease HP at regular intervals and delete data when it reaches zero.
-    - Anonymous user identification based on Session/IP.
-- **Out-of-Scope:**
-    - Complex frontend UI/UX implementation.
-    - Archiving systems for deleted posts.
-    - User registration and authentication procedures.
-
----
-
-## 👥 Stakeholders & Users
-
-- **Stakeholders:** Development team, Professor, and TAs.
-- **Requirements:** Structural validation of how efficiently the backend architecture handles real-time data processing and background tasks.
-- **Users:** Anonymous users who enjoy discussing volatile, trending issues.
-
----
-
-## 📅 Milestones
-*Criteria: Build community system first, then apply Modakbul logic.*
-
-1. **Community System Construction**
-    - **Features:**
-        - GET (List posts),
-        - POST (Create category/post),
-        - PUT (Update post),
-        - DELETE (Manual deletion).
-    - **Tech:** DB, Reverse Proxy, API Endpoints.
-
-2. **Applying Modakbul Logic**
-    - **Features:**
-        - GET (Check HP),
-        - POST (Register HP parameters during creation).
-    - **Tech:** Multi-threading (Background logic processing).
-
-3. **Optimization**
-    - **Features:** Convert frequently polled data to WebSockets.
-
----
-
-## 🛠 Tech Stack
-
-- **Backend Framework:** Spring Boot (Java 21)
-- **Database & ORM:** PostgreSQL / JPA
-- **Real-time Communication:** WebSockets
-- **Deployment & Tools:** Docker, Caddy (Reverse Proxy)
+### Comments
+* `POST /topics/{topic_id}/comments`: Add a comment to extend the topic's TTL.
+* `GET /topics/{topic_id}/comments`: Retrieve all comments for a specific topic.

@@ -45,3 +45,16 @@
     - Comment:
         - Every comment updates its parent `Topic` TTL by one (one minute).
         - Every comment should be left by an logged in user.
+
+- # ENDPOINTS:
+    - Users:
+        - **POST**: `/users/regirster`: Create a new account
+        - **POST**: `/users/login`: Authenticate
+
+    - Topics:
+        - **POST**: `/topics`: Start a new campfire (`owner_id` required)
+        - **GET**: `topics`: List all active, unexpired campfires
+
+    - Comments:
+        - **POST**: `/topics/{topic_id}/comments`: Add a comment to existing topic
+        - **GET**: `/topic/{topic_id}/comments`: Retrieve all comments for a specific topic
