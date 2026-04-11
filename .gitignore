@@ -2,3 +2,25 @@
 **/__pycache__/
 *.py[cod]
 *$py.class
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Database
+*.db
+*.sqlite3
+
+# Envrioment Variable
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Distribution / Build
+dist/
+build/
+*.spec
