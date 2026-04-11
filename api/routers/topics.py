@@ -12,7 +12,7 @@ router = APIRouter(prefix="/topics", tags=["Topics"])
         "/",
         response_model=TopicResponse,
         status_code=status.HTTP_201_CREATED,
-        sumamry="모닥불 피우기",
+        summary="모닥불 피우기",
         description="새로운 주제의 모닥불(게시물)을 생성합니다. (로그인 필수)")
 def create_new_topic(
     topic_data: TopicCreate,
