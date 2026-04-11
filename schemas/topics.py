@@ -4,11 +4,11 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class TopicCreate(BaseModel):
-    topic: str
+    content: str
 
 class TopicResponse(BaseModel):
     id: int
-    topic: str
+    content: str
     expires_at: datetime
     comment_count: int
     created_at: datetime

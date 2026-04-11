@@ -5,8 +5,8 @@ import os
 
 DB_FILENAME = "modakbul.db"
 
-USERNAME_LENGTH_MAX = 32
-NICKNAME_LENGTH_MAX = 32
+USERNAME_LENGTH_MAX = 31
+NICKNAME_LENGTH_MAX = 31
 TOPIC_LENGTH_MAX = 127
 COMMENT_LENGTH_MAX = 1023
 
@@ -33,7 +33,7 @@ def init_db():
     
     # 2. [Topics] Table
     query = f"""
-        CREATE TABLE IF NOT EXISTS topis (
+        CREATE TABLE IF NOT EXISTS topics (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             content VARCHAR({TOPIC_LENGTH_MAX}) NOT NULL,
             expires_at DATETIME NOT NULL,

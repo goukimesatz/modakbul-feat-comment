@@ -1,7 +1,7 @@
 # 🪵 모닥불 (Modakbul) 요구사항 명세서
 
 **버전:** 1.0.0  
-**최근 수정일:** 2026-04-10  
+**최근 수정일:** 2026-04-11
 **프로젝트 성격:** 실시간 휘발성 익명 커뮤니티 백엔드 API
 
 ---
@@ -183,7 +183,7 @@
 
 ## 3. 기술 스택 (Tech Stack)
 
-- **Language:** Python 3.11+
+- **Language:** Python 3.10.20
 - **Framework:** FastAPI
 - **Database:** SQLite3
 - **DB Access**: Python sqlite3 내장 모듈

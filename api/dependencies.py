@@ -1,16 +1,40 @@
 # 토큰 검증, 로그인 유저 식별 등 공통 함수 (Depends)
 
-from fastapi import Depends, HTTPException, status
+import jwt
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
+from core.exceptions import InvalidCredentialsException
+# from core.security import SECRET_KEY, ALGORITHM
 
 # Set Basic URL
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> int:
+    """ 헤더의 JWT 토큰을 검증하고 현재 인증된 사용자의 고유 ID를 반환합니다.
+
+    FastAPI의 Depends를 통해 Router에 주입되며,
+    토큰의 유효성(만료 여부, 변조 여부)를 검사한 뒤 페이로드에서 유저 식별자(sub)를 추출합니다.
+
+    Args:
+        token (str): HTTP bearer 헤더에서 추출된 JWT 액세스 토큰
+
+    Returns:
+        int: 토큰에서 추출된 사용자의 고유 식별 번호 (user_id)
+    
+    Raises:
+        invalidCredentialException: 다음과 같은 경우에 발생합니다.
+            1. 토큰의 서명이 일치하지 않거나 조작된 경우 (DecodeError)
+            2. 토큰의 유효 기간이 만료된 경우 (ExpiredSignatureError)
+            3. 토큰 페이로드에 사용자 정보(sub)가 누락된 경우
     """
-    TODO: [?] JWT 토큰을 해독하고 검증하여 user_id를 반환하는 로직 작성
-    - 토큰 만료 시 401 Unauthorized 반환
-    - 조작된 토큰일 시 401 Unauthorized 반환
+    
+    
+    """
+    TODO: [?] JWT 토큰 해독 및 검증 로직 구현
+    1. jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])를 사용하여 해독 시도
+    2. 만약 jwt.PyJWTError 관련 예외가 발생하면 InvalidCredentialsException() 던지기
+    3. 해독된 페이로드(payload.get("sub"))에서 user_id를 추출
+    4. user_id가 없거나 타입이 올바르지 않아도 InvalidCredentialsException() 던지기
     """
     
     # temporary dummy data (development)
