@@ -138,7 +138,7 @@
     - 데이터 삽입 시 토큰에서 추출한 User ID를 외래키로 매핑한다.
     - `expires_at` 컬럼의 기본값을 현재 서버 시간(`datetime.utcnow()`) 기준 '+1시간'으로 자동 계산하여 삽입한다.
 
-** SYS-05** : 지연 삭제 기반 피드 조회 및 페이징
+**SYS-05** : 지연 삭제 기반 피드 조회 및 페이징
 - Description:
     - As a : 시스템
     - I want to : 게시물 목록 조회 시 만료된 데이터를 쿼리 레벨에서 필터링하고 페이징 처리하여 반환하여
@@ -195,7 +195,7 @@
 ---
 
 ## 4. 디렉토리 구조 (Directory Structure)
-
+```
 modakbul_backend/
 ├── main.py              # FastAPI 앱 실행의 진입점 (스케줄러 시작 등)
 ├── api/                 # API 엔드포인트 (Router)
@@ -220,3 +220,4 @@ modakbul_backend/
 │   └── security.py         # bcrypt 해싱 함수, JWT 생성 함수 등
 └── jobs/                # 백그라운드 작업
     └── scheduler.py        # APScheduler (만료 모닥불 물리 삭제 로직)
+```
