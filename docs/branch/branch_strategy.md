@@ -37,7 +37,7 @@ Git 충돌을 원천 차단하기 위해, 개발은 철저히 **3단계(Phase)**
 
 | 담당자 | 브랜치명 | 전담 작업 파일 | 주요 구현 로직 |
 | :--- | :--- | :--- | :--- |
-| **?** | `feat/db-core` | `crud/topics.py`<br>`crud/comments.py` | - 지연 삭제(`WHERE expires_at > now`) 피드 조회<br>- 가변 연소율 시간 계산 알고리즘<br>- 장작 추가 단일 트랜잭션(`INSERT` & `UPDATE`) |
+| **경호** | `feat/db-core` | `crud/topics.py`<br>`crud/comments.py` | - 지연 삭제(`WHERE expires_at > now`) 피드 조회<br>- 가변 연소율 시간 계산 알고리즘<br>- 장작 추가 단일 트랜잭션(`INSERT` & `UPDATE`) |
 | **?** | `feat/db-auth` | `crud/auth.py`<br>`core/security.py` | - 유저 생성 및 단방향 암호화(`bcrypt`) 쿼리<br>- JWT 토큰 발급 및 검증 로직 구현 |
 
 #### 🌐 [API 팀] 라우터 및 미들웨어

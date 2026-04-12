@@ -67,9 +67,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     }
 
 
-@router.post("/logout")
+@router.post(
+        "/logout",
+        summary="로그아웃 및 토큰 삭제 유도 응답",
+        description="로그아웃을 하여 사용자가 토큰을 삭제하도록 유도합니다.")
 def logout():
-    """현재 로그인된 사용자의 로그아웃 처리를 수행하빈다.
+    """현재 로그인된 사용자의 로그아웃 처리를 수행합니다.
 
     JWT는 무상태(Stateless) 토큰이므로, 서버 측 세션 삭제 대신
     클라이언트에게 토큰 삭제를 유도하는 응답을 보냅니다.
