@@ -14,6 +14,6 @@ def get_db_connection():
     conn = sqlite3.connect(DB_FILENAME)
     conn.row_factory = sqlite3.Row
     try:
-        yield
+        yield conn
     finally:
         conn.close()

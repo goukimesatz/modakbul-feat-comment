@@ -3,8 +3,8 @@
 import sqlite3
 from schemas.auth import UserCreate
 from db.connection import get_db_connection
-from core.exceptions import UserAlreadyExistsException
-import core.security
+from core.exceptions import UserAlreadyExistsException, InvalidCredentialsException
+from core.security import get_password_hash, verify_password
 
 def create_user(user_data: UserCreate) -> dict:
     """ 새로운 사용자를 DB에 생성합니다.
@@ -20,14 +20,37 @@ def create_user(user_data: UserCreate) -> dict:
     Raises:
         UserAlreadyExistsException: 입력한 username(ID)이 이미 DB에 존재할 경우 발생
     """
+    
+    # 1. 비밀번호 해싱
+    hashed_password = get_password_hash(user_data.password)
 
-    """
-    TODO: [?] 회원가입 DB INSERT 로직
-    1. core.security.get_password_hash()로 비밀번호 암호화
-    2. with get_db_connection as conn: 열고 INSERT 쿼리 날리기
-    3. 만약 sqlite3.IntegrityError가 터지면 UserAlreadyExistsException() 던지기
-    """
-    pass
+    # 2. DB Connection 열어서 쿼리를 실행하기
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            # INSERT 쿼리
+            # SQL Injection 방지를 위하여 '?' placeholder 사용
+            query = "INSERT INTO users (username, password_hash, nickname) VALUES (?, ?, ?)"
+            cursor.execute(query, (user_data.username, hashed_password, user_data.nickname))
+
+            # 변경사항 저장
+            conn.commit()
+
+            # INSERT된 데이터의 고유 ID(Primary Key) 가져오기
+            new_user_id = cursor.lastrowid
+
+    except sqlite3.IntegrityError:
+        # 3. username의 UNIQUE constraint 위배할 경우 발생 (username 중복)
+        raise UserAlreadyExistsException()
+    
+    return {
+        "id": new_user_id,
+        "username": user_data.username,
+        "nickname": user_data.nickname
+    }
+    
+
 
 def authenticate_user(username: str, password: str) -> dict:
     """ 사용자의 로그인 자격 증명을 검증합니다.
@@ -47,11 +70,30 @@ def authenticate_user(username: str, password: str) -> dict:
 
     """
    
-    """
-    TODO: [?] 로그인 DB 검증 로직
-    1. SELECT * FROM user WHERE username = ? 로 유저 찾기
-    2. 유저가 없거나, core.security.verify_password() 결과가 False라면
-        InvalidCredentialsException() 던지기
-    3. 성공하면 유저 딕셔너리 반환
-    """
-    pass
+    # 1. DB Connection 열어서 유저 찾기
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # id, username, nickname, password_hash를 가져오기
+        query = "SELECT id, username, nickname, password_hash FROM users WHERE username = ?"
+        cursor.execute(query, (username, ))
+        user_record = cursor.fetchone()
+
+    # 2-1. 유저가 DB에 없는 경우
+    if user_record is None:
+        raise InvalidCredentialsException()
+    
+    # 가져온 record(tuple) unpacking
+    user_id, db_username, db_nickname, db_password_hash = user_record
+
+    # 2-2. 비밀번호 검증
+    # verify_password가 False를 반환하면(비밀번호가 틀리면) 에러 던지기
+    if not verify_password(password, db_password_hash):
+        raise InvalidCredentialsException()
+    
+    # 3. 인증을 모두 무사히 통과하여 유저 정보 딕셔너리 반환
+    return {
+        "id": user_id,
+        "username": db_username,
+        "nickname": db_nickname
+    }
