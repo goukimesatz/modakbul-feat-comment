@@ -6,6 +6,7 @@ from schemas.auth import UserCreate, TokenResponse
 from crud.auth import create_user, authenticate_user
 from core.security import create_access_token
 from core.exceptions import UserAlreadyExistsException
+from api.dependencies import get_current_user
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -67,11 +68,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     # 2. Token에 담을 내용(Payload) 구성
     # sub(주체, Subject) 키에 유저 고유값 넣기
-    token_data = {"sub": user["username"]}
+    token_data = {"sub": str(user["username"])}
 
     # 3. JWT 토큰 생성
     access_token = create_access_token(data=token_data)
-
 
     return {
         "access_token": access_token,
@@ -96,3 +96,25 @@ def logout():
     return {
         "message" : "로그아웃 되었습니다."
     }
+
+@router.get(
+    "/me",
+    summary="현재 로그인한 사용자 정보 조회",
+    description="현재 로그인한 사용자의 정보를 조회합니다.")
+def read_users_me(current_user_id: int = Depends(get_current_user)):
+    """현재 로그인한 사용자의 정보를 조회합니다.
+
+    인증된 유저만 접근할 수 있는 엔드포인트입니다.
+
+    Args:
+        current_user_id (int): Depends를 통해 주입된 현재 로그인 사용자의 고유 ID
+
+    Returns:
+        dict: 현재 로그인한 사용자의 정보
+    """
+
+    return {
+        "message": "인증 통과",
+        "user_id": current_user_id
+    }
+    
