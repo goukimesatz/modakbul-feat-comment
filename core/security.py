@@ -1,6 +1,12 @@
 # bcrypt 해싱 함수, JWT 생성 함수 등
+import jwt
+from datetime import datetime, timedelta, timezone
+from passlib.context import CryptContext
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-from datetime import datetime, timedelta
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 def get_password_hash(password: str) -> str:
     """평문 비밀번호를 단방향 암호화(해싱)하여 반환합니다.
@@ -14,11 +20,8 @@ def get_password_hash(password: str) -> str:
         str: DB에 안전하게 저장할 수 있는 해싱된 비밀번호 문자열
 
     """
+    return pwd_context.hash(password)
 
-    """
-    TODO: [?] passlib을 이용해 평문 비밀번호를 bcrypt로 해싱하여 반환
-    """
-    return "dummy_hashed_password"
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """로그인 시 입력받은 평문 비밀번호가 DB의 해시와 일치하는지 검증합니다.
@@ -31,11 +34,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         bool: 두 비밀번호가 일치하면 True, 틀리면 False
     
     """
-    
-    """
-    TODO: [?] 로그인 시 입력받은 평문과 DB의 해시가 일치하는지 검증
-    """
-    return True
+    return pwd_context.verify(plain_password, hashed_password)
+
 
 def create_access_token(data: dict) -> str:
     """사용자 식별 데이터를 담은 JWT(JSON Web Token) 액세스 토큰을 생성합니다.
@@ -50,10 +50,15 @@ def create_access_token(data: dict) -> str:
     
     """
 
-    """
-    TODO: [?] PyJWT을 이용해 access_token 생성 후 반환 (만료시간 포함)
-    1. data 딕셔너리를 깊은 복사(deep copy)하여 원본 훼손 방지
-    2. 복사한 딕셔너리에 'exp' (현재시간 + 만료시간) 키 추가
-    3. jwt.encode()를 사용하여 토큰 생성 후 리턴
-    """
-    return "dummy_jwt_token"
+    # 1. 원본 데이터의 훼손 방지를 위해 딕셔너리 복사
+    to_encode = data.copy()
+
+    # 2. 'exp' (만료 시간) 키 추가
+    # 서버 위치에 상관없이 동일하게 동작하도록 UTC 시간을 기준으로 함
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    
+    # 3. SECRET_KEY와 HS256 알고리즘을 사용해 토큰 생성 후 반환
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    return encoded_jwt

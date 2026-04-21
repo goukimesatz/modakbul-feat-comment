@@ -1,10 +1,13 @@
 # POST /auth/signup, /auth/login 등
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas.auth import UserCreate, TokenResponse
-import crud.auth
-import core.security
+from crud.auth import create_user, authenticate_user
+from core.security import create_access_token
+from core.exceptions import UserAlreadyExistsException
+from api.dependencies import get_current_user
+
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -27,13 +30,18 @@ def signup(user_data: UserCreate):
     Raises:
         UserAlreadyExistsException: (CRUD 내부에서 발생) 이미 존재하는 아이디일 경우 409 반환
     """
-    """
-    TODO: [?] 회원가입 처리 로직
-    1. crud.auth.create_user(user_date) 호출
-    2. (참고: 중복 아이디 에러는 CRUD 쪽에서 알아서 던지고 전역 핸들러가 처리하므로, 라우터에서는 try-exception 없이 호출만 하면 됨.)
-    """
+
+    try:
+        new_user = create_user(user_data)
+    except UserAlreadyExistsException as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="이미 존재하는 ID입니다."
+        )
+
     return {
-        "message" : "회원가입이 완료되었습니다."
+        "message" : "회원가입이 완료되었습니다.",
+        "user": new_user
     }
 
 @router.post(
@@ -54,15 +62,19 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         TokenResponse: 발급된 JWT 액세스 토큰과 토큰 타입(bearer)
     """
 
-    """
-    TODO: [?] 로그인 및 토큰 발급 로직
-    1. crud.auth.authenticate_user(form_data.username, form_data.password) 호출
-    2. 인증이 성공적으로 끝나면, core.security.create_access_token({"sub": form_data.username}) 호출
-    3. 반환받은 토큰 문자열을 아래 딕셔너리에 담아서 리턴
-    core.security.create_access_token() 호출하여 토큰 생성
-    """
+    # 1. DB에서 유저 검증
+    # CRUD에서 검증 실패 시 InvalidCredentialException을 던짐
+    user = authenticate_user(username=form_data.username, password=form_data.password)
+
+    # 2. Token에 담을 내용(Payload) 구성
+    # sub(주체, Subject) 키에 유저 고유값 넣기
+    token_data = {"sub": str(user["username"])}
+
+    # 3. JWT 토큰 생성
+    access_token = create_access_token(data=token_data)
+
     return {
-        "access_token": "dummy_jwt_token",
+        "access_token": access_token,
         "token_type" : "bearer"
     }
 
@@ -80,11 +92,29 @@ def logout():
     Returns:
         dict: 로그아웃 성공 메시지
     """
-    
-    """
-    # TODO: [?] 로그아웃 로직 (필요시 블랙리스트 처리 구현)
-    현재는 Frontend에서 토큰을 지우도록 유도하는 메시지만 반환하면 됨
-    """
+
     return {
         "message" : "로그아웃 되었습니다."
     }
+
+@router.get(
+    "/me",
+    summary="현재 로그인한 사용자 정보 조회",
+    description="현재 로그인한 사용자의 정보를 조회합니다.")
+def read_users_me(current_user_id: int = Depends(get_current_user)):
+    """현재 로그인한 사용자의 정보를 조회합니다.
+
+    인증된 유저만 접근할 수 있는 엔드포인트입니다.
+
+    Args:
+        current_user_id (int): Depends를 통해 주입된 현재 로그인 사용자의 고유 ID
+
+    Returns:
+        dict: 현재 로그인한 사용자의 정보
+    """
+
+    return {
+        "message": "인증 통과",
+        "user_id": current_user_id
+    }
+    
