@@ -2,7 +2,8 @@
 
 # 1. 마스터 디렉터리에 venv 폴더가 없으면 최초 1회 생성
 if [ ! -f "venv/bin/activate" ]; then
-    echo "[System] venv 폴더가 없습니다. 가상환경을 최초 1회 생성합니다..."
+    echo "[System] 'venv' folder not found."
+    echo "[System] Creating 'venv' folder"
     if command -v python3 &>/dev/null; then
         python3 -m venv venv
     else
@@ -10,11 +11,16 @@ if [ ! -f "venv/bin/activate" ]; then
     fi
 fi
 
-# 2. 무조건 venv 활성화
-echo "[System] 가상환경(venv)을 활성화합니다..."
-source venv/bin/activate
+# 2. Check if Virtual env is active
+if [ ! -n "$VIRTUAL_ENV" ]; then
+        echo "[System] Activating VENV"
+        source venv/bin/activate
+fi
 
-# 3. 패키지 설치 및 서버 실행
-echo "[System] 패키지 상태를 확인하고 서버를 켭니다..."
+# 3. Check package state
+echo "[System] Installing packages"
 pip install -r requirements.txt
+
+# 4. Wake up the server
+echo "[System] Starting the server..."
 uvicorn main:app --reload
