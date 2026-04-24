@@ -3,7 +3,7 @@
 from typing import List, Optional
 from schemas.topics import TopicCreate, TopicResponse
 from db.connection import get_db_connection
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 def create_topic(topic_data: TopicCreate, user_id: int) -> dict:
     """ 새로운 모닥불(Topic)을 피우고 DB에 저장합니다.
@@ -15,10 +15,6 @@ def create_topic(topic_data: TopicCreate, user_id: int) -> dict:
         user_id (int): 모닥불을 피우는 작성자의 고유 ID
     Returns:
         dict: DB에 방금 생성된 모닥불의 상세 정보 (id, expires_at 등 포함)
-    
-    Raises:
-        (명시적인 비즈니스 예외 없음 - 입력값 길이 제한 등은 Pydantic이 422 에러로 자동 처리.)
-    
     """
 
     """
@@ -27,7 +23,40 @@ def create_topic(topic_data: TopicCreate, user_id: int) -> dict:
     2. 삽입할 때 expires_at 값을 '현재 시간 + 1시간'으로 계산하여 넣기
     3. 방금 생성된 데이터(id 포함)를 SELECT 해서 리턴하기
     """
-    pass
+
+    # expires_at = now + 1 hour
+    # timezone.utc, so the location of server won't matter
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+
+    # DB Connection
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # INSERT
+        #    id: AUTOINCREMENT
+        #    comment_count: DEFAULT 0
+        #    created_at: DEFAULT CURRENT_TIMESTAMP
+        #
+        # we need to put 'content, expires_at, user_id'
+        insert_query = """
+            INSERT INTO topics (content, expires_at, user_id)
+            VALUES (?, ?, ?)
+        """
+        cursor.execute(insert_query, (topic_data.content, expires_at, user_id))
+
+        # Last INSERTed row id
+        new_topic_id = cursor.lastrowid
+
+        # Commit changes
+        conn.commit()
+
+        select_query = "SELECT * FROM topics WHERE id = ?"
+        cursor.execute(select_query, (new_topic_id,))
+        row = cursor.fetchone()
+
+    # Return slite3.Row object after converting to dict
+    return dict(row)
+
 
 def get_active_topics(limit: int = 20, offset: int = 0) -> List[dict]:
     """ 현재 살아있는 모닥불(Topic)의 피드 목록을 최신순으로 반환합니다.
@@ -37,10 +66,10 @@ def get_active_topics(limit: int = 20, offset: int = 0) -> List[dict]:
     Args:
         limit (int): 한 번에 반환할 최대 모닥불의 개수 (기본값: 20)
         offset (int): DB에서 건너뛸 데이터의 개수 (페이징용. 예: 20이면 21번째 글부터 조회)
-    
+
     Returns:
         List[dict]: 살아있는 모닥불들의 딕셔너리 리스트. (게시물이 없다면 빈 리스트[] 반환)
-    
+
     """
 
     """
@@ -57,14 +86,14 @@ def get_topic_detail(topic_id: int) -> Optional[dict]:
 
     Args:
         topic_id (int): 조회할 특정 모닥불의 고유 ID
-    
+
     Returns:
         dict: 특정 모닥불에 대한 상세 정보
-    
+
     Raises:
         TopicNotFoundException: 해당 ID의 모닥불이 아예 존재하지 않을 경우 발생
         TopicAlreadyExpiredException: 모닥불이 존재하지만 이미 수명이 만료된 경우 발생
-    
+
     """
 
     """

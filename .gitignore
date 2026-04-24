@@ -24,3 +24,7 @@ ENV/
 dist/
 build/
 *.spec
+
+# Test files
+test/*
+test/
