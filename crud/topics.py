@@ -4,7 +4,11 @@ from typing import List, Optional
 from schemas.topics import TopicCreate
 from db.connection import get_db_connection
 from datetime import datetime, timedelta, timezone
-from core.exceptions import TopicAlreadyExpiredException, TopicNotFoundException
+from core.exceptions import (
+        TopicAlreadyExpiredException,
+        TopicNotFoundException,
+        TopicAlreadyExistsException,
+ )
 
 def create_topic(topic_data: TopicCreate, user_id: int) -> dict:
     """ 새로운 모닥불(Topic)을 피우고 DB에 저장합니다.
@@ -32,6 +36,17 @@ def create_topic(topic_data: TopicCreate, user_id: int) -> dict:
     # DB Connection
     with get_db_connection() as conn:
         cursor = conn.cursor()
+
+        # Check if topic with similar content exists
+        dup_query = """
+            SELECT id FROM topics
+            WHERE content = ?
+                AND expires_at > datetime('now')
+            LIMIT 1
+        """
+        cursor.execute(dup_query, (topic_data.content, ))
+        if cursor.fetchone() is not None:
+            raise TopicAlreadyExistsException()
 
         # INSERT
         #    id: AUTOINCREMENT

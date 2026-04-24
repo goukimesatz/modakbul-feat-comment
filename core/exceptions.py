@@ -35,6 +35,10 @@ class TopicNotFoundException(ModakbulException):
     def __init__(self, detail: str = "존재하지 않거나 이미 꺼진 모닥불입니다."):
         super().__init__(status_code=404, detail=detail)
 
+class TopicAlreadyExistsException(ModakbulException):
+    def __init__(self, detail: str = "이미 같은 내용의 모닥불이 피어있습니다."):
+        super().__init__(status_code=409, detail=detail)
+
 class TopicAlreadyExpiredException(ModakbulException):
     def __init__(self):
         super().__init__(status_code=403, detail="이 모닥불은 수명이 다하여 더 이상 상호작용할 수 없습니다.")
