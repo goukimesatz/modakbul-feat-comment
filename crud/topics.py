@@ -1,9 +1,10 @@
 # 모닥불 생성, 지연 삭제 필터링 조회가 포함된 쿼리
 
 from typing import List, Optional
-from schemas.topics import TopicCreate, TopicResponse
+from schemas.topics import TopicCreate
 from db.connection import get_db_connection
 from datetime import datetime, timedelta, timezone
+from core.exceptions import TopicAlreadyExpiredException, TopicNotFoundException
 
 def create_topic(topic_data: TopicCreate, user_id: int) -> dict:
     """ 새로운 모닥불(Topic)을 피우고 DB에 저장합니다.
@@ -122,4 +123,25 @@ def get_topic_detail(topic_id: int) -> Optional[dict]:
     3. 결과가 있는데 expires_at이 현재 시간보다 과거라면 TopicAlreadyExpiredException() 던지기
     4. 유효하다면 딕셔너리 반환
     """
-    pass
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # Find topic by ID
+        query = "SELECT * FROM topics WHERE id = ?"
+        cursor.execute(query, (topic_id, ))
+        row = cursor.fetchone()
+
+    # If not found -> ERROR 404
+    if row is None:
+        raise TopicNotFoundException()
+
+    # SQLite datetime ISO saved as string
+    # Convert for comparison
+    expires_at_str = row["expires_at"]
+    expires_at = datetime.fromisoformat(expires_at_str)
+    now = datetime.now(timezone.utc)
+
+    if expires_at < now:
+        raise TopicAlreadyExpiredException()
+
+    return dict(row)
