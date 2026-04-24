@@ -77,7 +77,26 @@ def get_active_topics(limit: int = 20, offset: int = 0) -> List[dict]:
     1. SELECT * FROM topics WHERE expires_at > datetime('now') ORDER BY expires_at DESC LIMIT ? OFFSET ?
     2. 결과를 리스트로 묶어서 리턴
     """
-    return []
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # SELECT: (expires_at > current_time)
+        query = """
+            SELECT *
+            FROM topics
+            WHERE expires_at > datetime('now')
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        """
+        cursor.execute(query, (limit, offset))
+
+        # fetchall (return emtpy list if nothing found)
+        rows = cursor.fetchall()
+
+    # Convert to dict
+    # list comprehension:
+    return [dict(row) for row in rows]
+
 
 def get_topic_detail(topic_id: int) -> Optional[dict]:
     """ 특정 모닥불(Topic)에 대한 상세 정보를 반환합니다.
