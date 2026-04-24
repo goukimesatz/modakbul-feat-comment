@@ -68,7 +68,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     # 2. Token에 담을 내용(Payload) 구성
     # sub(주체, Subject) 키에 유저 고유값 넣기
-    token_data = {"sub": str(user["username"])}
+    token_data = {"sub": str(user["id"])}
 
     # 3. JWT 토큰 생성
     access_token = create_access_token(data=token_data)
