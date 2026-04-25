@@ -29,12 +29,12 @@ def create_new_topic(
     Returns:
         TopicResponse: 생성된 모닥불의 상세 정보 (id, expires_at 등 포함)
     """
-    
+
     """
     TODO: [?] 모닥불 생성 로직 구현
     1. crud.topics.create_topic(topic_data, user_id 호출 후, 그 반환값을 그대로 리턴)
     """
-    pass
+    return crud.topics.create_topic(topic_data, user_id)
 
 
 @router.get(
@@ -57,12 +57,12 @@ def read_topic_feed(
     Returns:
         List[TopicResponse]: 모닥불 정보가 담긴 리스트, 없으면 빈 리스트 반환.
     """
-    
+
     """
     TODO: [?] 피드 조회 로직 구현
     1. crud.topics.get_active_topics(limit, offset) 호출 후, 그 반환값을 그대로 리턴
     """
-    return []
+    return crud.topics.get_active_topics(limit, offset)
 
 
 @router.get(
@@ -79,7 +79,7 @@ def get_topic_detail(topic_id: int):
 
     Returns:
         TopicResponse: 해당 모닥불의 상세 정보
-    
+
     Raises:
         TopicNotFoundExceptioin: (CRUD 내부 발생) 게시물이 아예 없을 때 404 반환
         TopicalreadyExpiredException: (CRUD 내부 발생) 게시물이 이미 만료되었을 때 403 반환
@@ -90,4 +90,4 @@ def get_topic_detail(topic_id: int):
     1. crud.topics.get_topic_detail(topic_id) 호출 후, 그 반환값을 그대로 리턴
     (참고: 만료되거나 없는 게시물에 대한 404/403 에외 처리는 CRUD에서 던지므로 라우터에서는 호출만 하면 됨.)
     """
-    pass
+    return crud.topics.get_topic_detail(topic_id)
